@@ -24,6 +24,7 @@ export class Home extends Component {
   };
 
   handleMouseMove = e => {
+    e.preventDefault();
     if (this.isPainting) {
       this.ctx.beginPath();
       this.ctx.moveTo(this.oldX, this.oldY);
@@ -43,32 +44,18 @@ export class Home extends Component {
 
   handleSubmit = e => {
     e.preventDefault();
-    this.canvas.toBlob(blob => {
-      fetch("api/home/upload", {
-        method: "POST",
-        body: blob
-      }).then(res => {
-        res.arrayBuffer().then(buffer => {
-          var base64Flag = "data:image/png;base64,";
-          var imageStr = this.arrayBufferToBase64(buffer);
-
-          var img = new Image();
-          img.src = base64Flag + imageStr;
-          img.onload = () => {
-            this.ctx.drawImage(img, 0, 0);
-          };
-        });
-      });
-    });
+    let img = new Image();
+    img.onload = e => {
+      img.width = 28;
+      img.height = 28;
+      this.ctx.drawImage(img, 0, 0, 28, 28, 0, 0, 28, 28);
+    };
+    img.src = this.canvas.toDataURL();
+    console.log(img);
   };
 
-  arrayBufferToBase64 = buffer => {
-    var binary = "";
-    var bytes = [].slice.call(new Uint8Array(buffer));
-
-    bytes.forEach(b => (binary += String.fromCharCode(b)));
-
-    return window.btoa(binary);
+  clearCanvas = () => {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   };
 
   render() {
@@ -88,11 +75,14 @@ export class Home extends Component {
               this.isPainting = false;
             }}
             style={{
-              border: "1px solid black"
+              border: "1px solid black",
+              width: "280px",
+              height: "280px"
             }}
             width={280}
             height={280}
           />
+          <button onClick={this.clearCanvas}>Clear</button>
           <input type="submit" value="send" />
         </form>
       </div>

@@ -6,6 +6,8 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using NeuralNetwork;
+
 [Route("api/home")]
 public class SampleDataController : Controller
 {
