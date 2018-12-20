@@ -8,13 +8,17 @@ export class Home extends Component {
     this.ctx = null;
     this.oldX = 0;
     this.oldY = 0;
+    this.state = {
+      result: ""
+    }
   }
 
   componentDidMount() {
     this.canvas = document.getElementById("canvas");
     this.ctx = document.getElementById("canvas").getContext("2d");
     this.ctx.lineCap = "round";
-    this.ctx.lineWidth = 5;
+    this.ctx.lineWidth = 15;
+    this.ctx.strokeStyle = "white";
   }
 
   handleMouseDown = e => {
@@ -42,20 +46,47 @@ export class Home extends Component {
     this.isPainting = false;
   };
 
+  sendData = (vector) => {
+    fetch("api/home/upload", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(vector)
+    }).then((res) => {
+      this.setState({ result: res.json()[0] });
+    })
+  }
+
   handleSubmit = e => {
     e.preventDefault();
+
     let img = new Image();
-    img.onload = e => {
-      img.width = 28;
-      img.height = 28;
-      this.ctx.drawImage(img, 0, 0, 28, 28, 0, 0, 28, 28);
-    };
+    img.onload = () => {
+      let canvas = document.getElementById('canvas1');
+      let ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 28, 28);
+      ctx.ImageSmoothingEnabled = false;
+      ctx.imageSmoothingEnabled = false;
+      ctx.mozImageSmoothingEnabled = false;
+      ctx.webkitImageSmoothingEnabled = false;
+      ctx.drawImage(img, 0, 0, 28, 28);
+      let imageData = ctx.getImageData(0, 0, 28, 28).data;
+      let vector = [];
+      for (let i = 0; i < imageData.length; i += 4) {
+        vector.push(imageData[i]);
+      }
+      console.log(vector);
+      this.sendData(vector);
+    }
     img.src = this.canvas.toDataURL();
-    console.log(img);
   };
 
   clearCanvas = () => {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    let canvas = document.getElementById('canvas1');
+    let ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 28, 28);
   };
 
   render() {
@@ -77,14 +108,29 @@ export class Home extends Component {
             style={{
               border: "1px solid black",
               width: "280px",
-              height: "280px"
+              height: "280px",
+              background: "black"
             }}
             width={280}
             height={280}
           />
+          <canvas
+            id="canvas1"
+            style={{
+              border: "1px solid black",
+              width: "28px",
+              height: "28px",
+              background: "black"
+            }}
+            width={28}
+            height={28}
+          />
           <button onClick={this.clearCanvas}>Clear</button>
           <input type="submit" value="send" />
         </form>
+        <div>
+          {this.state.result}
+        </div>
       </div>
     );
   }
