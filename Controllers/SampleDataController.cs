@@ -7,21 +7,21 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using NeuralNetwork;
+
 [Route("api/home")]
 public class SampleDataController : Controller
 {
-  NeuralNetwork.NeuralNetwork nn;
+    public SampleDataController()
+    {
 
-  public SampleDataController()
-  {
-    nn = new NeuralNetwork.NeuralNetwork(784, 20, 10, 0.1);
-    nn.LoadNetwork("nn.dat");
-  }
+    }
 
-  [HttpPost("upload")]
-  public ActionResult UploadVector([FromBody]double[] vector)
-  {
-    int result = nn.TestNetwork(vector);
-    return Ok(result);
-  }
+    [HttpPost("upload")]
+    public JsonResult UploadVector([FromBody]byte[] vector)
+    {
+        var nn = new NeuralNetwork.NeuralNetwork(784, 20, 10, 0.1, ActivationFunction.Sigmoid, 0.1);
+        nn.InitNetwork("test.dat");
+        int result = nn.TestNetwork(vector);
+        return Json(result);
+    }
 }
