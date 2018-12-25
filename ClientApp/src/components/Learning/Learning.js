@@ -107,7 +107,7 @@ export class Learning extends Component {
         </div>
         <ResultInfo data={result} step={stepResult} hub={hub} />
         <ScatterPlot data={result} />
-        <LearningGraph />
+        <LearningGraph data={result} />
       </div>
     );
   }
