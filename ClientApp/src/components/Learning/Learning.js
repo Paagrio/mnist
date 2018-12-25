@@ -3,6 +3,7 @@ import { HubConnectionBuilder } from "@aspnet/signalr";
 import "./Learning.css";
 import { ResultInfo } from "../ResultInfo/ResultInfo";
 import { ScatterPlot } from "../ScatterPlot/ScatterPlot";
+import { LearningGraph } from "../LearningGraph/LearningGraph";
 
 export class Learning extends Component {
   constructor() {
@@ -106,6 +107,7 @@ export class Learning extends Component {
         </div>
         <ResultInfo data={result} step={stepResult} hub={hub} />
         <ScatterPlot data={result} />
+        <LearningGraph />
       </div>
     );
   }
