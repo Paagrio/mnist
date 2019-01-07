@@ -104,6 +104,13 @@ export class Learning extends Component {
             value="Обучение"
             disabled={this.state.isLearning}
           />
+          <svg width="190" height="160" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M10 80 C 0 10 0 20, 65 10, 69 70 S 150 150, 150 80"
+              stroke="black"
+              fill="transparent"
+            />
+          </svg>
         </div>
         <ResultInfo data={result} step={stepResult} hub={hub} />
         <ScatterPlot data={result} />
