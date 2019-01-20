@@ -4,6 +4,8 @@ import "./Learning.css";
 import { ResultInfo } from "../ResultInfo/ResultInfo";
 import { ScatterPlot } from "../ScatterPlot/ScatterPlot";
 import { LearningGraph } from "../LearningGraph/LearningGraph";
+import { Diagram } from "../Diagram/Diagram";
+import { Visual } from "../Visual/Visual";
 
 export class Learning extends Component {
   constructor() {
@@ -13,7 +15,6 @@ export class Learning extends Component {
       hidLayerSize: 20,
       learningRate: 0.1,
       activationFunc: "sigmoid",
-      weightsSeed: 0.1,
       result: null,
       stepResult: null,
       isLearning: true
@@ -45,7 +46,6 @@ export class Learning extends Component {
         "SendData",
         +this.state.hidLayerSize,
         +this.state.learningRate,
-        +this.state.weightsSeed,
         this.state.activationFunc
       )
       .catch(err => {
@@ -63,58 +63,49 @@ export class Learning extends Component {
     const hub = this.state.connection;
     return (
       <div className="learning">
-        <div className="form">
-          <label>Количество нейронов в скрытом слое</label>
-          <input
-            type="text"
-            className="input"
-            name="hidLayerSize"
-            value={this.state.hidLayerSize}
-            onChange={this.handleChange}
-          />
-          <label>Скорость обучения</label>
-          <input
-            type="text"
-            className="input"
-            name="learningRate"
-            value={this.state.learningRate}
-            onChange={this.handleChange}
-          />
-          <label>инициализация весов</label>
-          <input
-            type="text"
-            className="input"
-            name="weightsSeed"
-            value={this.state.weightsSeed}
-            onChange={this.handleChange}
-          />
-          <label>Функция активации</label>
-          <select
-            value={this.state.activationFunc}
-            name="activationFunc"
-            onChange={this.handleChange}
-          >
-            <option value="sigmoid">Sigmoid</option>
-            <option value="tanh">Tanh</option>
-          </select>
-          <input
-            type="button"
-            onClick={this.handleSubmit}
-            className="submit"
-            value="Обучение"
-            disabled={this.state.isLearning}
-          />
-          <svg width="190" height="160" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M10 80 C 0 10 0 20, 65 10, 69 70 S 150 150, 150 80"
-              stroke="black"
-              fill="transparent"
-            />
-          </svg>
+        <div className="head">
+          <h1>Обучение нейросети методом обратного распространения ошибки</h1>
         </div>
+        {this.state.isLearning ? null : (
+          <div className="form">
+            <label>Количество нейронов в скрытом слое</label>
+            <input
+              type="text"
+              className="input"
+              name="hidLayerSize"
+              value={this.state.hidLayerSize}
+              onChange={this.handleChange}
+            />
+            <label>Скорость обучения</label>
+            <input
+              type="text"
+              className="input"
+              name="learningRate"
+              value={this.state.learningRate}
+              onChange={this.handleChange}
+            />
+            <label>Функция активации</label>
+            <select
+              value={this.state.activationFunc}
+              name="activationFunc"
+              onChange={this.handleChange}
+            >
+              <option value="sigmoid">Sigmoid</option>
+              <option value="tanh">Tanh</option>
+            </select>
+            <input
+              type="button"
+              onClick={this.handleSubmit}
+              className="submit"
+              value="Обучение"
+            />
+          </div>
+        )}
         <ResultInfo data={result} step={stepResult} hub={hub} />
         <ScatterPlot data={result} />
         <LearningGraph data={result} />
+        <Diagram data={result} />
+        <Visual data={stepResult} />
       </div>
     );
   }

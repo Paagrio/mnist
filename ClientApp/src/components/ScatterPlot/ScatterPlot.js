@@ -30,12 +30,12 @@ export class ScatterPlot extends PureComponent {
               <tr key={index}>
                 <td>{index}</td>
                 {this.props.data.map((obj, ind) => {
-                  let bg = "white";
+                  let bg=null;
                   if (ind == index) {
-                    bg = "green";
+                    bg = "#a3b7fa";
                   }
                   return (
-                    <td key={ind} style={{ background: bg }}>
+                    <td key={ind} style={{background:bg}}>
                       {this.props.data[index].scatter[ind]}
                     </td>
                   );

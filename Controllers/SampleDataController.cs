@@ -19,7 +19,7 @@ public class SampleDataController : Controller
     [HttpPost("upload")]
     public JsonResult UploadVector([FromBody]byte[] vector)
     {
-        var nn = new NeuralNetwork.NeuralNetwork(784, 20, 10, 0.1, ActivationFunction.Sigmoid, 0.1);
+        var nn = new NeuralNetwork.NeuralNetwork(784, 20, 10, 0.1, ActivationFunction.Sigmoid);
         nn.InitNetwork("test.dat");
         int result = nn.TestNetwork(vector);
         return Json(result);

@@ -95,6 +95,7 @@ export class Home extends Component {
     const result = this.state.result;
     return (
       <div>
+        <h1>Распознование рукописных цифр</h1>
         <form
           action="POST"
           onSubmit={this.handleSubmit}
@@ -131,7 +132,7 @@ export class Home extends Component {
           <input type="submit" value="send" />
         </form>
         <button onClick={this.clearCanvas}>Clear</button>
-        <div>{result}</div>
+        <h1>{result}</h1>
       </div>
     );
   }

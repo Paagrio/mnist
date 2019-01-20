@@ -14,7 +14,7 @@ public class StreamHub : Hub
     BinaryReader brLabels;
     BinaryReader brImages;
 
-    public async Task SendData(int hidLayerSize, double speed, int weights, string actFunc)
+    public async Task SendData(int hidLayerSize, double speed, string actFunc)
     {
         ActivationFunction activation = ActivationFunction.Sigmoid;
         switch (actFunc)
@@ -32,32 +32,36 @@ public class StreamHub : Hub
             ifsImages = new FileStream("train-images.idx3-ubyte", FileMode.Open); // test images
             brLabels = new BinaryReader(ifsLabels);
             brImages = new BinaryReader(ifsImages);
-            var nn = new NeuralNetwork.NeuralNetwork(28 * 28, hidLayerSize, 10, speed, activation, weights);
+            var nn = new NeuralNetwork.NeuralNetwork(28 * 28, hidLayerSize, 10, speed, activation);
             nn.InitNetwork();
-            int magic1 = brImages.ReadInt32(); // магическое число 
-            int numImages = brImages.ReadInt32(); //количество изображений 
-            int numRows = brImages.ReadInt32(); //количество строк в изображении 
-            int numCols = brImages.ReadInt32(); //количество столбцов изображения 
-            int magic2 = brLabels.ReadInt32(); //магическое число 
-            int numLabels = brLabels.ReadInt32(); //количество лейблов 
+            int magic1 = brImages.ReadInt32();
+            int numImages = brImages.ReadInt32();
+            int numRows = brImages.ReadInt32();
+            int numCols = brImages.ReadInt32();
 
-            byte[] pixels = new byte[28 * 28]; //инициализация массива для хранения изображения 28x28 
+            int magic2 = brLabels.ReadInt32();
+            int numLabels = brLabels.ReadInt32();
+
+            byte[] pixels = new byte[28 * 28];
 
             for (int di = 0; di < 60000; ++di)
             {
-                byte lbl = brLabels.ReadByte(); //текущее значение лейбла 
+                byte lbl = brLabels.ReadByte();
                 for (int i = 0; i < 28 * 28; ++i)
                 {
                     byte b = brImages.ReadByte();
-                    pixels[i] = b; //считываем байт изображения в массив 
+                    pixels[i] = b;
                 }
                 nn.TrainNetwork(pixels, lbl);
-                if ((di + 1) % 50 == 0)
+                var info = nn.GetInfo();
+                if (info.Count % 50 == 0)
                 {
-                    await Clients.Caller.SendAsync("ReceiveStepInfo", nn.GetInfo());
+                    await Clients.Caller.SendAsync("ReceiveStepInfo", info);
                     await Clients.Caller.SendAsync("ReceiveResultInfo", nn.GetResult());
+                    Thread.Sleep(100);
                 }
             }
+            nn.SaveNetwork("test.dat");
             await Clients.Caller.SendAsync("EndLearning");
             ifsImages.Close();
             brImages.Close();

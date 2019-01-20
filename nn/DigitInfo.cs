@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-
+using System;
 namespace NeuralNetwork
-{
+{   
+    [Serializable]
     public class DigitInfo
     {
         public int Digit { get; set; }

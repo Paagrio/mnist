@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading.Tasks;
 
 namespace NeuralNetwork
 {
@@ -15,13 +16,13 @@ namespace NeuralNetwork
         private int dataCount = 0;
         private ActivationFunction activationFunction;
         private double learningRate;
-        private double weightSeed;
         private int inputVectorRange;
         private int hidLayerSize;
         private int outLayerSize;
 
         private DigitInfo[] digitInfo;
 
+        Info information = new Info();
         private List<Layer> Layers;
 
         /// <summary>
@@ -33,14 +34,13 @@ namespace NeuralNetwork
         /// <param name="learningRate"> Интенсивность обучения</param>
         /// <param name="activationFunction"> Функиця активации</param>
         /// <param name="weightSeed"> Веса будут инициализированы в диапазоне (-weightsSeed,weightsSeed)</param>
-        public NeuralNetwork(int inputVectorRange, int hidLayerSize, int outLayerSize, double learningRate, ActivationFunction activationFunction, double weightSeed)
+        public NeuralNetwork(int inputVectorRange, int hidLayerSize, int outLayerSize, double learningRate, ActivationFunction activationFunction)
         {
             this.inputVectorRange = inputVectorRange;
             this.hidLayerSize = hidLayerSize;
             this.outLayerSize = outLayerSize;
             this.learningRate = learningRate;
             this.activationFunction = activationFunction;
-            this.weightSeed = weightSeed;
             digitInfo = new DigitInfo[10];
             for (int i = 0; i < 10; i++)
             {
@@ -65,10 +65,10 @@ namespace NeuralNetwork
                 neuron.Weights = new double[inputVectorRange];
                 for (int b = 0; b < inputVectorRange; b++)
                 {
-                    neuron.Inputs[b] = 0;
-                    neuron.Weights[b] = Random(-this.weightSeed, this.weightSeed);
+                    neuron.Inputs[b] = 0.00;
+                    neuron.Weights[b] = 0.00;
                 }
-                neuron.Bias = rnd.NextDouble();
+                neuron.Bias = 1;
                 hiddLayer.Neurons.Add(neuron);
             }
             Layers.Add(hiddLayer);
@@ -83,9 +83,9 @@ namespace NeuralNetwork
                 for (int b = 0; b < hidLayerSize; b++)
                 {
                     neuron.Inputs[b] = 0.00;
-                    neuron.Weights[b] = Random(-this.weightSeed, this.weightSeed);
+                    neuron.Weights[b] = 0.00;
                 }
-                neuron.Bias = 0;
+                neuron.Bias = 1;
                 outLayer.Neurons.Add(neuron);
             }
             Layers.Add(outLayer);
@@ -96,13 +96,7 @@ namespace NeuralNetwork
         /// <param name="path">Путь к файлу</param>
         public void InitNetwork(string path)
         {
-            BinaryFormatter formatter = new BinaryFormatter();
-            NeuralNetwork nn;
-            using (FileStream fs = new FileStream(path, FileMode.Open))
-            {
-                nn = formatter.Deserialize(fs) as NeuralNetwork;
-            }
-            InitNetwork(nn);
+            InitNetwork(LoadNetwork(path));
         }
 
         /// <summary>
@@ -117,7 +111,6 @@ namespace NeuralNetwork
             this.inputVectorRange = nn.inputVectorRange;
             this.outLayerSize = nn.outLayerSize;
             this.activationFunction = nn.activationFunction;
-            this.weightSeed = nn.weightSeed;
         }
 
         /// <summary>
@@ -128,11 +121,14 @@ namespace NeuralNetwork
         /// <returns>Результат классификации</returns>
         public void TrainNetwork(byte[] data, int lbl)
         {
+            this.information.Label = lbl;
+            this.information.Data = data.Select(Convert.ToInt32).ToArray();
             maxError = -1.0;
             double[] inputVector = GetInputVector(lbl);
             ForwardPropagate(DataToVector(data));
             BackPropagate(lbl);
             int classificated = GetClassification();
+            information.Output = classificated;
             digitInfo[lbl].Scatter[classificated]++;
             if (classificated == lbl)
             {
@@ -156,7 +152,7 @@ namespace NeuralNetwork
 
         public Info GetInfo()
         {
-            Info information = new Info();
+
             information.Classificated = Math.Round(success / dataCount * 100.00, 2);
             information.MaxError = maxError;
             information.Count = dataCount;
@@ -254,6 +250,7 @@ namespace NeuralNetwork
         /// <param name="data">входной вектор</param>
         private void ForwardPropagate(double[] data)
         {
+
             TrainHiddenLayer(Layers[0], data);
             TrainOutputLayer(Layers[1]);
         }
@@ -345,13 +342,24 @@ namespace NeuralNetwork
         /// Сохранить текущее состояние сети.
         /// </summary>
         /// <param name="path">Путь к файлу формат .dat</param>
-        public void SaveNetwork(string path)
+        public async void SaveNetwork(string path)
         {
             BinaryFormatter formatter = new BinaryFormatter();
             using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate))
             {
-                formatter.Serialize(fs, this);
+                await Task.Run(() => formatter.Serialize(fs, this));
             }
+        }
+
+        private NeuralNetwork LoadNetwork(string path)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            NeuralNetwork nn;
+            using (FileStream fs = new FileStream(path, FileMode.Open))
+            {
+                nn = formatter.Deserialize(fs) as NeuralNetwork;
+            }
+            return nn;
         }
 
         private double[] DataToVector(byte[] pixels)
@@ -359,7 +367,7 @@ namespace NeuralNetwork
             double[] vector = new double[pixels.Length];
             for (int i = 0; i < pixels.Length; i++)
             {
-                vector[i] = pixels[i] > 0 ? 1 : 0;
+                vector[i] = pixels[i] / 255.00;
             }
             return vector;
         }

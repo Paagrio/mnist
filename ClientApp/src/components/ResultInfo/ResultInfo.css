@@ -1,10 +1,44 @@
 table {
-    border: 1px solid black;
-    margin: 1px;
-    text-align: center;
-    cursor: default;
+    border:none;
+    border-collapse: collapse;
+    border-left:1px solid #669;
+    border-right:1px solid #669;
+    border-top:1px solid #669;
+    color:rgb(0, 40, 119);
+}
+
+table>caption {
+    text-align:left;
+    padding:10px;
+    font-size:30px;
+    color:rgb(0, 40, 119);
 }
 
 table>thead {
+    font-size: 18px;
+}
+
+table>thead>tr>td, table>tbody>tr>td{
+    border-bottom: 1px solid lightgray;
+    padding: 10px;
+    padding-right:20px;
+    min-width: 50px;
+}
+
+table>tbody{
+    background: #dbe3ff;
+    font-family: "Comic Sans MS", cursive, sans-serif;
+    font-size: 14px;
+}
+
+table>tbody>tr:hover{
+    background: #cad6ff;
+}
+
+.resultInfoTable>thead {
     user-select: none;
+}
+
+.resultInfoTable>thead>tr {
+    height:30px;
 }
