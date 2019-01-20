@@ -9,8 +9,6 @@ export class ScatterPlot extends PureComponent {
     this.ctx = null;
   }
 
-  componentDidMount() {}
-
   render() {
     if (this.props.data === null) return null;
     return (
